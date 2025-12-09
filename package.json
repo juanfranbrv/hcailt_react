@@ -4,16 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "powershell -Command \"& { netstat -ano | findstr ':3000' | ForEach-Object { $p = $_.Split() | Where-Object { $_ -match '^\\d+$' } | Select-Object -Last 1; if ($p) { taskkill /F /PID $p 2>$null } }; netstat -ano | findstr ':5173' | ForEach-Object { $p = $_.Split() | Where-Object { $_ -match '^\\d+$' } | Select-Object -Last 1; if ($p) { taskkill /F /PID $p 2>$null } }; Start-Job -ScriptBlock { npm start } | Out-Null; Start-Sleep -Seconds 2; cd frontend; npm run dev }\"",
-    "start": "vercel dev",
-    "build": "cd frontend && npm install && npm run build",
-    "dev:frontend": "cd frontend && npm run dev"
-  },
-  "dependencies": {
-    "@google/generative-ai": "^0.11.0",
-    "@vercel/node": "latest",
-    "groq-sdk": "^0.5.0",
-    "openai": "^4.57.0",
-    "zod": "^3.23.8"
+    "dev": "powershell -Command \"& { netstat -ano | findstr ':3000' | ForEach-Object { $p = $_.Split() | Where-Object { $_ -match '^\\d+$' } | Select-Object -Last 1; if ($p) { taskkill /F /PID $p 2>$null } }; netstat -ano | findstr ':5173' | ForEach-Object { $p = $_.Split() | Where-Object { $_ -match '^\\d+$' } | Select-Object -Last 1; if ($p) { taskkill /F /PID $p 2>$null } }; Start-Job -ScriptBlock { cd backend; npm start } | Out-Null; Start-Sleep -Seconds 2; cd frontend; npm run dev }\"",
+    "dev:frontend": "cd frontend && npm run dev",
+    "dev:backend": "cd backend && npm start"
   }
 }

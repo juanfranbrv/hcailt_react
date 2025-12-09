@@ -5,9 +5,11 @@ secrets.toml
 .secrets.toml
 backend/.env
 backend/.env.vercel
+backend/.env.local
 frontend/.env
 frontend/.env.local
 frontend/.env.ftp
+
 
 
 # Python
@@ -65,3 +67,5 @@ Thumbs.db
 *.temp
 pnpm-lock.yaml
 yarn.lock
+
+.vercel
