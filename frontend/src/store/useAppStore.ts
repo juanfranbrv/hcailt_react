@@ -21,7 +21,7 @@ type Actions = {
 
 export const providerModels: Record<Provider, string[]> = {
   openai: ['gpt-5.1', 'gpt-5-mini'],
-  google: ['models/gemini-2.5-flash'],
+  google: ['models/gemini-2.5-flash', 'models/gemini-flash-lite-latest'],
   groq: ['openai/gpt-oss-120b'],
   fireworks: ['accounts/fireworks/models/deepseek-v3p1-terminus'],
 };
