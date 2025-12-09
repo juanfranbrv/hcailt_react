@@ -18,10 +18,12 @@ const isOriginAllowed = (origin: string | undefined) => {
   return origin.endsWith('.vercel.app'); // Allow dynamic Vercel deployments
 };
 
-provider: z.enum(['openai', 'google', 'groq', 'fireworks']).default('openai'),
+export const baseSchema = z.object({
+  provider: z.enum(['openai', 'google', 'groq', 'fireworks']).default('openai'),
   model: z.string().min(1, 'Model is required'),
-    temperature: z.number().min(0).max(1).default(0.3),
+  temperature: z.number().min(0).max(1).default(0.3),
 });
+
 
 const ensureNumber = (value: unknown, fallback: number) => {
   if (typeof value === 'number') return value;
