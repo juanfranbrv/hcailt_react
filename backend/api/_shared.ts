@@ -58,31 +58,42 @@ export async function callChatLLM(params: {
 }) {
   const { provider, model, temperature, systemPrompt, userPrompt } = params;
   if (provider === 'openai') {
-    const client = new OpenAI({
-      apiKey: ensureApiKey(process.env.OPENAI_API_KEY, 'OPENAI_API_KEY'),
-      timeout: 60000,  // 60 seconds
-      maxRetries: 2,
-    });
+    const apiKey = ensureApiKey(process.env.OPENAI_API_KEY, 'OPENAI_API_KEY');
 
     // gpt-5-mini (likely o1-mini based) only passes with temperature=1
     const finalTemperature = model === 'gpt-5-mini' ? 1 : temperature;
 
     try {
-      console.log(`[OpenAI] Calling model: ${model}, temperature: ${finalTemperature}`);
-      const completion = await client.chat.completions.create({
-        model,
-        temperature: finalTemperature,
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: userPrompt },
-        ],
+      console.log(`[OpenAI] Calling model: ${model}, temperature: ${finalTemperature} via fetch`);
+
+      const response = await fetch('https://api.openai.com/v1/chat/completions', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${apiKey}`,
+        },
+        body: JSON.stringify({
+          model,
+          temperature: finalTemperature,
+          messages: [
+            { role: 'system', content: systemPrompt },
+            { role: 'user', content: userPrompt },
+          ],
+        }),
       });
-      const content = completion.choices[0]?.message?.content?.trim() || '';
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error(`[OpenAI] HTTP ${response.status}: ${errorText}`);
+        throw new Error(`OpenAI HTTP ${response.status}: ${errorText}`);
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content?.trim() || '';
       const clean = content.replace(/<tool_call>[\s\S]*?<\/think>/g, '').trim();
       return clean || (content ? `⚠️ Model only output reasoning (no final answer found):\n\n${content}` : '');
     } catch (error: any) {
       console.error(`[OpenAI] Error:`, error?.message || error);
-      console.error(`[OpenAI] Full error:`, JSON.stringify(error, null, 2));
       throw new Error(`OpenAI error: ${error?.message || 'Unknown error'}`);
     }
   }
