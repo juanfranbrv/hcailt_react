@@ -11,10 +11,16 @@ const allowedOrigins = (process.env.ALLOWED_ORIGIN || 'https://hcailt.awordz.com
   .map((o) => o.trim())
   .filter(Boolean);
 
-export const baseSchema = z.object({
-  provider: z.enum(['openai', 'google', 'groq', 'fireworks']).default('openai'),
+// Helper to check if origin is allowed
+const isOriginAllowed = (origin: string | undefined) => {
+  if (!origin) return false;
+  if (allowedOrigins.includes(origin)) return true;
+  return origin.endsWith('.vercel.app'); // Allow dynamic Vercel deployments
+};
+
+provider: z.enum(['openai', 'google', 'groq', 'fireworks']).default('openai'),
   model: z.string().min(1, 'Model is required'),
-  temperature: z.number().min(0).max(1).default(0.3),
+    temperature: z.number().min(0).max(1).default(0.3),
 });
 
 const ensureNumber = (value: unknown, fallback: number) => {
@@ -158,9 +164,9 @@ export async function callChatLLM(params: {
 
 export const addCors = (req: VercelRequest, res: VercelResponse) => {
   const reqOrigin = req.headers.origin;
-  const originToAllow = reqOrigin && allowedOrigins.includes(reqOrigin) ? reqOrigin : allowedOrigins[0];
+  const originToAllow = isOriginAllowed(reqOrigin) ? reqOrigin : allowedOrigins[0];
 
-  res.setHeader('Access-Control-Allow-Origin', originToAllow);
+  res.setHeader('Access-Control-Allow-Origin', originToAllow || '*');
   res.setHeader('Vary', 'Origin');
   res.setHeader('X-Debug-Origin', originToAllow);
   res.setHeader('X-Debug-Allowed', allowedOrigins.join('|'));
